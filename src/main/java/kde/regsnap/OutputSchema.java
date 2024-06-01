@@ -21,9 +21,10 @@ public class OutputSchema implements KafkaRecordSerializationSchema<Tuple3<Long,
 
     @Override
     public ProducerRecord<byte[], byte[]> serialize(Tuple3<Long, char[], Long> tuple, KafkaSinkContext context, Long timestamp) {
-        double latency = (double) (System.nanoTime() - tuple.f2)/1_000_000;
-        String value = "{\"latency\":" + latency + "}";
-        return new ProducerRecord<>(TOPIC, 1, timestamp, null,
+        Long now = System.currentTimeMillis();
+        double latency = (double) (now - tuple.f2)/1_000_000;
+        String value = tuple.f0 + "," + latency;
+        return new ProducerRecord<>(TOPIC, null, timestamp, null,
                 value.getBytes());
     }
 }

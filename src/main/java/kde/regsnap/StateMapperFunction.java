@@ -5,9 +5,7 @@ import org.apache.flink.api.common.state.ListState;
 import org.apache.flink.api.common.state.ListStateDescriptor;
 import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple3;
-import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
@@ -52,11 +50,21 @@ public class StateMapperFunction implements MapFunction<Tuple3<Long, char[], Lon
 
     @Override
     public Tuple3<Long, char[], Long> map(Tuple3<Long, char[], Long> evt) throws Exception {
-        currentState.add(String.copyValueOf(evt.f1));
+        while (currentState.size() <= stateSize*1024){
+            currentState.add(String.copyValueOf(evt.f1));
+        }
         while (currentState.size() > stateSize*1024){
             currentState.remove(0);
 //            Thread.sleep(stateSize/10);
         }
+//        if(opName.equals("stateful3")){
+//            evt.f2[1] = System.nanoTime();
+//            return evt;
+//        }
+//        if(opName.equals("stateful5")){
+//            evt.f2[2] = System.nanoTime();
+//            return evt;
+//        }
         return evt;
     }
 }
